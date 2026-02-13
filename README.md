@@ -106,8 +106,3 @@ python manage.py test
 - Configure static/media hosting and secured file serving strategy.
 - Use a strong `SECRET_KEY` and secure cookie settings.
 
-## Screenshot Placeholders
-- [Screenshot Placeholder: Home]
-- [Screenshot Placeholder: Complaint List]
-- [Screenshot Placeholder: Complaint Detail - Copy Buttons]
-- [Screenshot Placeholder: Staff Dashboard]
