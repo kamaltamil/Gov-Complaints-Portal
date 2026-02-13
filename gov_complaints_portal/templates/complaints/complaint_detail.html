@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Complaint {{ complaint.reference_id }} | Government Complaint Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h1 class="h3 mb-0">Complaint Details</h1>
+    <a class="btn btn-outline-secondary" href="{% url 'complaints:complaint_list' %}">Back to List</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">{{ complaint.title }}</h2>
+                        <p class="mb-0 text-muted">{{ complaint.reference_id }}</p>
+                    </div>
+                    <div class="text-end">
+                        {% if complaint.status == 'received' %}
+                            <span class="badge text-bg-secondary">Received</span>
+                        {% elif complaint.status == 'in_progress' %}
+                            <span class="badge text-bg-warning">In Progress</span>
+                        {% else %}
+                            <span class="badge text-bg-success">Resolved</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Category</dt>
+                    <dd class="col-sm-8">{{ complaint.get_category_display }}</dd>
+
+                    <dt class="col-sm-4">Urgency</dt>
+                    <dd class="col-sm-8">{{ complaint.get_urgency_display }}</dd>
+
+                    <dt class="col-sm-4">Location</dt>
+                    <dd class="col-sm-8">{{ complaint.location }}</dd>
+
+                    <dt class="col-sm-4">Description</dt>
+                    <dd class="col-sm-8">{{ complaint.description|linebreaksbr }}</dd>
+
+                    <dt class="col-sm-4">Created At</dt>
+                    <dd class="col-sm-8">{{ complaint.created_at|date:"Y-m-d H:i" }}</dd>
+
+                    <dt class="col-sm-4">Last Updated</dt>
+                    <dd class="col-sm-8">{{ complaint.updated_at|date:"Y-m-d H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Attachments</h2>
+            </div>
+            <div class="card-body">
+                {% if attachments %}
+                    <ul class="list-group list-group-flush">
+                        {% for attachment in attachments %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <span>{{ attachment.original_filename }}</span>
+                                <span class="d-flex gap-2">
+                                    <a class="btn btn-sm btn-outline-primary" href="{% url 'complaints:attachment_download' attachment.id %}?inline=1" target="_blank">
+                                        Open
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'complaints:attachment_download' attachment.id %}">
+                                        Download
+                                    </a>
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="mb-0">No attachments uploaded.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Quick Actions</h2>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary js-copy-btn" data-copy-text="{{ complaint.reference_id }}" type="button">
+                        Copy Reference ID
+                    </button>
+                    <button class="btn btn-outline-primary js-copy-btn" data-copy-url="1" type="button">
+                        Copy Page URL
+                    </button>
+                    {% if can_edit %}
+                        <a class="btn btn-warning" href="{% url 'complaints:complaint_edit' complaint.reference_id %}">Edit Complaint</a>
+                    {% endif %}
+                    {% if can_delete %}
+                        <a class="btn btn-danger" href="{% url 'complaints:complaint_delete' complaint.reference_id %}">Delete Complaint</a>
+                    {% endif %}
+                </div>
+                <div class="toast align-items-center text-bg-success border-0 mt-3" id="copyToast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">Copied!</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if request.user.is_staff %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">Staff Controls</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'complaints:staff_update_status' complaint.reference_id %}">
+                        {% csrf_token %}
+                        {{ staff_update_form.non_field_errors }}
+                        {{ staff_comment_form.non_field_errors }}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ staff_update_form.status.id_for_label }}">Status</label>
+                            {{ staff_update_form.status }}
+                            <div class="text-danger small">{{ staff_update_form.status.errors }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ staff_update_form.assigned_to.id_for_label }}">Assign To</label>
+                            {{ staff_update_form.assigned_to }}
+                            <div class="text-danger small">{{ staff_update_form.assigned_to.errors }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ staff_update_form.staff_remark.id_for_label }}">Staff Remark</label>
+                            {{ staff_update_form.staff_remark }}
+                            <div class="text-danger small">{{ staff_update_form.staff_remark.errors }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ staff_comment_form.comment.id_for_label }}">Internal Comment</label>
+                            {{ staff_comment_form.comment }}
+                            <div class="text-danger small">{{ staff_comment_form.comment.errors }}</div>
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit">Update Complaint</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h2 class="h6 mb-0">Staff Comment Timeline</h2>
+                </div>
+                <div class="card-body">
+                    {% if staff_comments %}
+                        <ul class="list-group list-group-flush">
+                            {% for item in staff_comments %}
+                                <li class="list-group-item px-0">
+                                    <div class="small text-muted mb-1">{{ item.staff_user.username }} • {{ item.created_at|date:"Y-m-d H:i" }}</div>
+                                    <div>{{ item.comment }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="mb-0">No internal comments yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Government Complaint Portal{% endblock %}
+
+{% block content %}
+<section class="p-4 p-md-5 mb-4 bg-light rounded-3 border">
+    <div class="container-fluid py-2">
+        <h1 class="display-6 fw-bold">Government Online Complaint Portal</h1>
+        <p class="col-md-10 fs-5">
+            Submit complaints about public issues, track progress with your complaint reference ID, and receive updates as authorities act.
+        </p>
+        {% if request.user.is_authenticated %}
+            <a class="btn btn-primary btn-lg" href="{% url 'complaints:complaint_create' %}">File a Complaint</a>
+        {% else %}
+            <a class="btn btn-primary btn-lg" href="{% url 'login' %}">Login to File Complaint</a>
+        {% endif %}
+    </div>
+</section>
+
+{% if request.user.is_authenticated %}
+    <section class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h2 class="h5 mb-0">Your Latest Complaints</h2>
+        </div>
+        <div class="card-body">
+            {% if recent_complaints %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Reference ID</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in recent_complaints %}
+                                <tr>
+                                    <td>{{ complaint.reference_id }}</td>
+                                    <td>{{ complaint.title }}</td>
+                                    <td><span class="badge text-bg-info">{{ complaint.get_status_display }}</span></td>
+                                    <td>{{ complaint.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-primary" href="{% url 'complaints:complaint_detail' complaint.reference_id %}">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="mb-0">No complaints submitted yet.</p>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}
+{% endblock %}

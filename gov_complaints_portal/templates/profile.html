@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | Government Complaint Portal{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 mb-3">Profile</h1>
+                <p class="mb-1"><strong>Username:</strong> {{ request.user.username }}</p>
+                <p class="mb-0"><strong>Email:</strong> {{ request.user.email|default:"Not provided" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Submitted Complaints</h2>
+            </div>
+            <div class="card-body">
+                {% if complaints %}
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for complaint in complaints %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'complaints:complaint_detail' complaint.reference_id %}">
+                                                {{ complaint.reference_id }}
+                                            </a>
+                                        </td>
+                                        <td>{{ complaint.title }}</td>
+                                        <td>{{ complaint.get_status_display }}</td>
+                                        <td>{{ complaint.created_at|date:"Y-m-d H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="mb-0">You have not submitted any complaints yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

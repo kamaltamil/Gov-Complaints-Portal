@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Complaint | Government Complaint Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 mb-3">Edit Complaint: {{ complaint.reference_id }}</h1>
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label" for="{{ form.title.id_for_label }}">Title</label>
+                            {{ form.title }}
+                            <div class="text-danger small">{{ form.title.errors }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.category.id_for_label }}">Category</label>
+                            {{ form.category }}
+                            <div class="text-danger small">{{ form.category.errors }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.urgency.id_for_label }}">Urgency</label>
+                            {{ form.urgency }}
+                            <div class="text-danger small">{{ form.urgency.errors }}</div>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label" for="{{ form.location.id_for_label }}">Location</label>
+                            {{ form.location }}
+                            <div class="text-danger small">{{ form.location.errors }}</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
+                            {{ form.description }}
+                            <div class="text-danger small">{{ form.description.errors }}</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="{{ attachment_form.attachments.id_for_label }}">Add more attachments</label>
+                            {{ attachment_form.attachments }}
+                            <div class="text-danger small">{{ attachment_form.attachments.errors }}</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button class="btn btn-primary" type="submit">Save Changes</button>
+                        <a class="btn btn-outline-secondary" href="{% url 'complaints:complaint_detail' complaint.reference_id %}">Back</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
